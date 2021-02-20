@@ -2,6 +2,7 @@
 
 from __future__ import print_function
 import pickle
+import time
 import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -35,11 +36,24 @@ def main():
 
     service = build('admin', 'directory_v1', credentials=creds)
 
-    # Call the Admin SDK Directory API
+    ### Let's goooo
     print('Admin SDK Directory API script')
-    results = service.users().list(customer='my_customer', maxResults=1, # pylint: disable=maybe-no-member
+    
+    # Get list of user full names seperated by newline
+    data = open('users.csv', 'r', encoding='utf-8')
+    fullNamesDirty = data.readlines()
+    data.close()
+    fullNames = []
+    for name in fullNamesDirty:
+        fullNames.append(name.strip("\n"))
+    print(fullNames)
+
+    # Call the Admin SDK Directory API
+    results = service.users().list(customer='my_customer', maxResults=200, # pylint: disable=maybe-no-member
                                 orderBy='email').execute()
     users = results.get('users', [])
+
+    # created_account = self.get_service().users().insert(body=body).execute()
 
     if not users:
         print('No users in the domain.')
@@ -47,7 +61,12 @@ def main():
         print('Users:')
         for user in users:
             # print(u'{0} ({1})'.format(user['primaryEmail'], user['name']['fullName']))
-            print(user['aliases'])
+            try:
+                print(user['aliases'])
+            except KeyError:
+                pass
+            time.sleep(0.2)
+            
 
 if __name__ == '__main__':
     main()
