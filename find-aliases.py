@@ -12,9 +12,7 @@ from google.auth.transport.requests import Request
 SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
 
 def main():
-    """Shows basic usage of the Admin SDK Directory API.
-    Prints the emails and names of the first 10 users in the domain.
-    """
+    """test script, please ignore"""
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -39,6 +37,12 @@ def main():
     ### Let's goooo
     print('Admin SDK Directory API script')
     
+    ### Steps: 
+    ### 1. Get list of full names of all users of which aliases should be deleted and append to a list
+    ### 2. Call Google API/user accounts, match names and find all aliases to delete, add to a list
+    ### 3. Add exceptions if alias includes words
+    ### 4. Call Google API/user aliases, delete aliases from a list
+
     # Get list of user full names seperated by newline
     data = open('users.csv', 'r', encoding='utf-8')
     fullNamesDirty = data.readlines()
@@ -49,23 +53,26 @@ def main():
     print(fullNames)
 
     # Call the Admin SDK Directory API
-    results = service.users().list(customer='my_customer', maxResults=200, # pylint: disable=maybe-no-member
+    results = service.users().list(customer='my_customer', maxResults=10, # pylint: disable=maybe-no-member
                                 orderBy='email').execute()
     users = results.get('users', [])
 
-    # created_account = self.get_service().users().insert(body=body).execute()
+    # Examples
+    # Send a request - created_account = self.get_service().users().insert(body=body).execute()
+    # Format output - print(u'{0} ({1})'.format(user['primaryEmail'], user['name']['fullName']))
+    #                 print(user['aliases'])
 
     if not users:
-        print('No users in the domain.')
+        print('No users in the domain!')
     else:
-        print('Users:')
+        print('---- Output: ----')
         for user in users:
-            # print(u'{0} ({1})'.format(user['primaryEmail'], user['name']['fullName']))
             try:
-                print(user['aliases'])
+                print(u'{0} - {1}'.format(user['name']['fullName'], user['aliases']))
+                print(u'{0}'.format(user['aliases']).strip("[']"))
             except KeyError:
                 pass
-            time.sleep(0.2)
+            time.sleep(0.2) # to avoid rate limit
             
 
 if __name__ == '__main__':
