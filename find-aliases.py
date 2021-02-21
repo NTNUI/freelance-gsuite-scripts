@@ -50,7 +50,6 @@ def main():
     fullNames = []
     for name in fullNamesDirty:
         fullNames.append(name.strip("\n"))
-    # print(fullNames)
 
     # Call the Admin SDK Directory API
     results = service.users().list(customer='my_customer', maxResults=500, # pylint: disable=maybe-no-member
@@ -74,11 +73,16 @@ def main():
                 if user['name']['fullName'].lower() == name.lower():
                     try:
                         for alias in user['aliases']:
-                            outdatedAliases.append(alias)
+                            if alias not in outdatedAliases and alias.find("leder") == -1 and alias.find("kasserer") == -1:
+                                outdatedAliases.append(alias)
                     except KeyError:
                         pass
-                    time.sleep(0.5) # to avoid rate limit
-    print(outdatedAliases)
+
+    ## Add output aliases to file
+    f = open('output.csv', 'w')
+    for alias in outdatedAliases:
+        f.writelines(alias+'\n')
+    f.close()
 
 if __name__ == '__main__':
     main()
