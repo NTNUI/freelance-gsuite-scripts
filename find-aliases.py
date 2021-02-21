@@ -1,5 +1,3 @@
-# test script, please ignore
-
 from __future__ import print_function
 import pickle
 import time
@@ -11,8 +9,25 @@ from google.auth.transport.requests import Request
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
 
+### Steps: 
+### 1. Get list of full names of all users of which aliases should be deleted and append to a list
+### 2. Call Google API/user accounts, match names and find all aliases to delete, add to a list
+### 3. Add exceptions if alias includes words
+### 4. Call Google API/user aliases, delete aliases from a list
+### 5. ???
+### 6. Profit?
+
+# Examples
+# Send a request - created_account = self.get_service().users().insert(body=body).execute()
+# Format output - print(u'{0} ({1})'.format(user['primaryEmail'], user['name']['fullName']))
+#                 print(user['aliases'])
+
 def main():
     """test script, please ignore"""
+
+    ### Let's goooo
+    print('Admin SDK Directory API script')
+
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -33,16 +48,7 @@ def main():
             pickle.dump(creds, token)
 
     service = build('admin', 'directory_v1', credentials=creds)
-
-    ### Let's goooo
-    print('Admin SDK Directory API script')
     
-    ### Steps: 
-    ### 1. Get list of full names of all users of which aliases should be deleted and append to a list
-    ### 2. Call Google API/user accounts, match names and find all aliases to delete, add to a list
-    ### 3. Add exceptions if alias includes words
-    ### 4. Call Google API/user aliases, delete aliases from a list
-
     # Get list of user full names seperated by newline
     data = open('input.csv', 'r', encoding='utf-8')
     fullNamesDirty = data.readlines()
@@ -55,11 +61,6 @@ def main():
     results = service.users().list(customer='my_customer', maxResults=500, # pylint: disable=maybe-no-member
                                 orderBy='email').execute()
     users = results.get('users', [])
-
-    # Examples
-    # Send a request - created_account = self.get_service().users().insert(body=body).execute()
-    # Format output - print(u'{0} ({1})'.format(user['primaryEmail'], user['name']['fullName']))
-    #                 print(user['aliases'])
 
     outdatedAliases = []
 
