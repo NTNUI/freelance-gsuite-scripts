@@ -44,16 +44,16 @@ def main():
     ### 4. Call Google API/user aliases, delete aliases from a list
 
     # Get list of user full names seperated by newline
-    data = open('users.csv', 'r', encoding='utf-8')
+    data = open('input.csv', 'r', encoding='utf-8')
     fullNamesDirty = data.readlines()
     data.close()
     fullNames = []
     for name in fullNamesDirty:
         fullNames.append(name.strip("\n"))
-    print(fullNames)
+    # print(fullNames)
 
     # Call the Admin SDK Directory API
-    results = service.users().list(customer='my_customer', maxResults=10, # pylint: disable=maybe-no-member
+    results = service.users().list(customer='my_customer', maxResults=500, # pylint: disable=maybe-no-member
                                 orderBy='email').execute()
     users = results.get('users', [])
 
@@ -62,18 +62,23 @@ def main():
     # Format output - print(u'{0} ({1})'.format(user['primaryEmail'], user['name']['fullName']))
     #                 print(user['aliases'])
 
+    outdatedAliases = []
+
+    print('---- Output: ----')
     if not users:
         print('No users in the domain!')
     else:
-        print('---- Output: ----')
+        print('Users:')
         for user in users:
-            try:
-                print(u'{0} - {1}'.format(user['name']['fullName'], user['aliases']))
-                print(u'{0}'.format(user['aliases']).strip("[']"))
-            except KeyError:
-                pass
-            time.sleep(0.2) # to avoid rate limit
-            
+            for name in fullNames:
+                if user['name']['fullName'].lower() == name.lower():
+                    try:
+                        for alias in user['aliases']:
+                            outdatedAliases.append(alias)
+                    except KeyError:
+                        pass
+                    time.sleep(0.5) # to avoid rate limit
+    print(outdatedAliases)
 
 if __name__ == '__main__':
     main()
