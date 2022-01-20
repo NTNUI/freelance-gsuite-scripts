@@ -7,9 +7,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
+SCOPES = ["https://www.googleapis.com/auth/admin.directory.user"]
 
-### Steps: 
+### Steps:
 ### 1. Get list of full names of all users of which aliases should be deleted and append to a list
 ### 2. Call Google API/user accounts, match names and find all aliases to delete, add to a list
 ### 3. Add exceptions if alias includes words
@@ -22,35 +22,32 @@ SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
 # Format output - print(u'{0} ({1})'.format(user['primaryEmail'], user['name']['fullName']))
 #                 print(user['aliases'])
 
-def main():
-    """test script, please ignore"""
 
-    ### Let's goooo
-    print('Admin SDK Directory API script')
+def main():
+    print("Admin SDK Directory API script")
 
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
+    if os.path.exists("token.pickle"):
+        with open("token.pickle", "rb") as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
+        with open("token.pickle", "wb") as token:
             pickle.dump(creds, token)
 
-    service = build('admin', 'directory_v1', credentials=creds)
-    
+    service = build("admin", "directory_v1", credentials=creds)
+
     # Get list of user full names seperated by newline
-    data = open('input.csv', 'r', encoding='utf-8')
+    data = open("input.csv", "r", encoding="utf-8")
     fullNamesDirty = data.readlines()
     data.close()
     fullNames = []
@@ -58,32 +55,45 @@ def main():
         fullNames.append(name.strip("\n"))
 
     # Call the Admin SDK Directory API
-    results = service.users().list(customer='my_customer', maxResults=500, # pylint: disable=maybe-no-member
-                                orderBy='email').execute()
-    users = results.get('users', [])
+    results = (
+        service.users()
+        .list(
+            customer="my_customer",
+            maxResults=500,  # pylint: disable=maybe-no-member
+            orderBy="email",
+        )
+        .execute()
+    )
+    users = results.get("users", [])
 
     outdatedAliases = []
 
-    print('---- Output: ----')
+    print("---- Output: ----")
     if not users:
-        print('No users in the domain!')
+        print("No users in the domain!")
     else:
-        print('Users:')
+        print("Users:")
         for user in users:
             for name in fullNames:
-                if user['name']['fullName'].lower() == name.lower():
+                if user["name"]["fullName"].lower() == name.lower():
                     try:
-                        for alias in user['aliases']:
-                            if alias not in outdatedAliases and alias.find("leder") == -1 and alias.find("kasserer") == -1:
+                        for alias in user["aliases"]:
+                            if (
+                                alias not in outdatedAliases
+                                # Words to exclude from aliases
+                                and alias.find("leder") == -1
+                                and alias.find("kasserer") == -1
+                            ):
                                 outdatedAliases.append(alias)
                     except KeyError:
                         pass
 
-    ## Add output aliases to file
-    f = open('output.csv', 'w')
+    # Add output aliases to output.csv
+    f = open("output.csv", "w")
     for alias in outdatedAliases:
-        f.writelines(alias+'\n')
+        f.writelines(alias + "\n")
     f.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
