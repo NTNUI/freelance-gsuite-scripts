@@ -12,15 +12,12 @@ from google.auth.transport.requests import Request
 SCOPES = ["https://www.googleapis.com/auth/admin.directory.user"]
 
 
-def diff_month(d1, d2):
-    return (d1.year - d2.year) * 12 + d1.month - d2.month
+def diff_month(date_1, date_2):
+    """Find number of months in difference between date 1 and date 2"""
+    return (date_1.year - date_2.year) * 12 + date_1.month - date_2.month
 
 
-def should_delete(date, is_superuser):
-    """Checks if the G Suite account should be deleted."""
-    if is_superuser:
-        return False
-
+def should_delete(date):
     INACTIVE_LIMIT = 12
     return diff_month(datetime.now(), datetime.fromisoformat(date)) > INACTIVE_LIMIT
 
@@ -78,7 +75,7 @@ def main():
 
     for response in responses:
         for user in response:
-            if should_delete(user["lastLoginTime"][:-5], user["isAdmin"]):
+            if should_delete(user["lastLoginTime"]):
                 f.writelines(
                     user["primaryEmail"]
                     + " - "
