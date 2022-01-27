@@ -19,6 +19,8 @@ def diff_month(date_1, date_2):
 
 def should_delete(date):
     INACTIVE_LIMIT = 12
+    # Convert G Suite lastLoginTime format to date
+    date = date.split("T")[0]
     return diff_month(datetime.now(), datetime.fromisoformat(date)) > INACTIVE_LIMIT
 
 
