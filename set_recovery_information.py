@@ -66,23 +66,25 @@ def main():
     for response in responses:
         for user in response:
             try:
-                print(user["primaryEmail"] + " - " + user["recoveryPhone"] + " - " + user["recoveryEmail"])
+                print(user["primaryEmail"] + " - " + user["recoveryEmail"])
             except KeyError as err:
                 print(err)
-                # Assumes every user has an alternative email address
+                if err.args[0] == "recoveryEmail":
+                    try:
+                        f.writelines("Setting recovery email for " + user["primaryEmail"] + " to " + user["emails"][0]["address"] + "\n")
+                        service.users().patch(userKey=user["primaryEmail"], body={"recoveryEmail": user["emails"][0]["address"]}).execute()
+                    except KeyError:
+                        f.writelines("No email found for " + user["primaryEmail"] + ", skipping..." + "\n")
+            try:
+                print(user["primaryEmail"] + " - " + user["recoveryPhone"])
+            except KeyError as err:
+                print(err)
                 if err.args[0] == "recoveryPhone":
                     try:
                         f.writelines("Setting recovery phone for " + user["primaryEmail"] + " to " + user["phones"][0]["value"] + "\n")
                         service.users().patch(userKey=user["primaryEmail"], body={"recoveryPhone": user["phones"][0]["value"]}).execute()
-                        f.writelines("Setting recovery email for " + user["primaryEmail"] + " to " + user["emails"][0]["address"] + "\n")
-                        service.users().patch(userKey=user["primaryEmail"], body={"recoveryEmail": user["emails"][0]["address"]}).execute()
                     except KeyError:
                         f.writelines("No phone number found for " + user["primaryEmail"] + ", skipping..." + "\n")
-                elif err.args[0] == "recoveryEmail":
-                    f.writelines("Setting recovery email for " + user["primaryEmail"] + " to " + user["emails"][0]["address"] + "\n")
-                    service.users().patch(userKey=user["primaryEmail"], body={"recoveryEmail": user["emails"][0]["address"]}).execute()
-
-            f.writelines("\n")
     f.close()
                 
 
