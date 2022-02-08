@@ -4,3 +4,5 @@ user
 input.csv
 output.csv
 .vscode
+venv/
+.idea/
