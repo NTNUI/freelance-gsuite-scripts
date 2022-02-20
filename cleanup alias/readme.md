@@ -107,9 +107,9 @@ Create a file called aliases.json and paste the contents from output (this might
 ]
 ```
 
-### 2.b
+### 2.b Export from slack
 
-Ask mats
+Ask @xtrah (Mats)
 
 ## 3
 
