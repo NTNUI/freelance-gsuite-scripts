@@ -33,7 +33,7 @@ namespace Cleanup
             List<string> output = new List<string>();
             foreach (var slackUser in slackUsers)
             {
-                var user = users.FirstOrDefault(m => m.Mail == slackUser.Mail);
+                var user = users.FirstOrDefault(m => m.Mail == slackUser.Mail || m.Name == slackUser.Name);
                 if (user == null || !members.Any(m => m.Name == user.Name))
                     output.Add($"{slackUser.Name} ---- {slackUser.Mail}");
             }
