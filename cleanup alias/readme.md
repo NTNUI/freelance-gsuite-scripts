@@ -4,13 +4,65 @@ This is a tool to check that all board members have the correct aliases in gsuit
 
 # How to use
 
-1. Export data from medlemssystemet and gsuite
-2. Run the project
-3. Check export with results
+1. Export data from medlemssystemet
+2. Export data from gsuite / slack
+3. Run the project
+4. Check exportfiles with results
 
 ## 1. Export data
 
-### 1.a Export from gsuite
+### 1.a Export all members from api.ntnui.no/admin
+
+Export will return a CSV file. This need to be converted to JSON. Create a file called members.json and add the content.
+It should look something like this:
+
+```
+[
+  {
+    "id": 1,
+    "role": "Member",
+    "name": "Billy Hansen",
+    "gruppe": "Badminton"
+  },
+  {
+    "id": 2,
+    "role": "Member",
+    "name": "Trond Tenåsen",
+    "gruppe": "Tennis"
+  },
+  {
+    "id": 3,
+    "role": "Member",
+    "name": "Theodor Thoresen",
+    "gruppe": "Tennis"
+  }
+  ...
+]
+```
+
+### 1.b Export all users from the database
+
+Query:
+
+```
+select '{"mail":"' || contact_email || '", "name":" ' || first_name || ' ' || last_name || '"}'  from public.accounts_usermodel where contact_email is not null
+```
+
+This should also be converted to a JSON. Looking like this:
+
+```
+[
+  { "mail": "sprint.sprintesen@ntnui.no", "name": "Sprint Sprintesen" },
+  { "mail": "peter.pettersen@ntnui.no", "name": "Peter Pettersen" },
+  { "mail": "hans.hansen@ntnui.no", "name": "Hans Hansen" }
+]
+```
+
+Add this to a file called users.json
+
+## 2 Export data from slack or gsuite (depending on what checks you are doing)
+
+### 2.a Export from gsuite
 
 Export all aliases from gsuite
 Run this script in google scripts https://script.google.com/
@@ -55,51 +107,26 @@ Create a file called aliases.json and paste the contents from output (this might
 ]
 ```
 
-## 1.b Export all members from api.ntnui.no/admin
+### 2.b
 
-Export will return a CSV file. This need to be converted to JSON. Create a file called members.json and add the content.
-It should look something like this:
+Ask mats
 
-```
-[
-  {
-    "id": 1,
-    "role": "Member",
-    "name": "Billy Hansen",
-    "gruppe": "Badminton"
-  },
-  {
-    "id": 2,
-    "role": "Member",
-    "name": "Trond Tenåsen",
-    "gruppe": "Tennis"
-  },
-  {
-    "id": 3,
-    "role": "Member",
-    "name": "Theodor Thoresen",
-    "gruppe": "Tennis"
-  }
-  ...
-]
-```
+## 3
 
-## 1.c Export all users from the database
+Run the project
 
-Query:
+Make sure you have .net installed.
+This script uses .net 6
+Open folder in terminal and run:
 
 ```
-select '{"mail":"' || contact_email || '", "name":" ' || first_name || ' ' || last_name || '"}'  from public.accounts_usermodel where contact_email is not null
+dotnet run
 ```
 
-This should also be converted to a JSON. Looking like this:
+Easy ;)
 
-```
-[
-  { "mail": "sprint.sprintesen@ntnui.no", "name": "Sprint Sprintesen" },
-  { "mail": "peter.pettersen@ntnui.no", "name": "Peter Pettersen" },
-  { "mail": "hans.hansen@ntnui.no", "name": "Hans Hansen" }
-]
-```
+## 4. Check the output file
 
-Add this to a file called users.json
+If you are checking slack -> the program will generate slackresult.json
+
+If you are checking gsuite alias -> the program will generate aliasresult.json

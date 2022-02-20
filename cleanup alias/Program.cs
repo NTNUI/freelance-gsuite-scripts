@@ -38,7 +38,7 @@ namespace Cleanup
                     output.Add($"{slackUser.Name} ---- {slackUser.Mail}");
             }
 
-            await System.IO.File.WriteAllLinesAsync("./exportslack.json", output);
+            await System.IO.File.WriteAllLinesAsync("./slackresult.json", output);
         }
         public static async Task CheckAliases()
         {
@@ -73,7 +73,7 @@ namespace Cleanup
                         membersWithoutAlias.Add(member.Gruppe + " - kasserer - " + member.Name);
             }
 
-            await System.IO.File.WriteAllLinesAsync("./export.json", membersWithoutAlias);
+            await System.IO.File.WriteAllLinesAsync("./aliasresult.json", membersWithoutAlias);
         }
         public static async Task<List<T>> ReadFile<T>(string path)
         {
